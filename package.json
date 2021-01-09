@@ -1,14 +1,14 @@
 {
-  "name": "Zoom_clone",
+  "name": "Remote-lab",
   "version": "1.0.0",
   "description": "",
   "main": "server.js",
   "scripts": {
-    "start": "nodemon server.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
-  "author": "",
+  "author": "ajitshiva",
   "license": "ISC",
   "dependencies": {
     "ejs": "^3.1.5",
