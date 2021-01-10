@@ -1,6 +1,21 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato&family=Poppins&display=swap');
 *{
     margin: 0;
     padding: 0;
+}
+body{
+    overflow-y: hidden;
+    font-family: 'Lato', sans-serif;
+}
+.lato{
+    font-size: .7rem;
+    font-weight: 700;
+    font-family: 'Lato', sans-serif;
+}
+.lato-primary
+{
+    font-weight: 700;
+    font-family: 'Lato', sans-serif;
 }
 a{
     text-decoration: none;
@@ -9,6 +24,7 @@ a{
     height: 100vh;
     display: flex;
     position: relative;
+    flex-direction: column;
 }
 .main__videos
 {
@@ -18,34 +34,124 @@ a{
     flex-direction: column;
     /* align-items: center; */
 }
-#editor{
+.text-editor{
     height: 70vh;
     width: 100%;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    grid-template-rows: 1fr 4fr 1fr 4fr;
+    grid-template-areas: 
+    'editor-header stdin' 
+    'editor input' 
+    'editor stdout' 
+    'editor output';
+    
+}
+#editor-header{
+    grid-area: editor-header;
+    height: 5vh;
+    color: white;
+    text-align: center;
+    background-color: #2F3129;
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+}
+.editor-title
+{
+    width: 100%;
+}
+.language-title
+{
+    margin-right: 10px;
+}
+#run
+{
+    padding: 1px 10px;
+}
+.editor-settings
+{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    align-items: center;
+}
+#editor{
+    grid-area: editor;
+    height: 65vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
 }
+#stdin
+{
+    grid-area: stdin;
+    height: 5vh;
+    color: white;
+    text-align: center;
+    background-color: #2F3129;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#input
+{
+    grid-area: input;
+    height: 31vh;
+    /* transform: translateY(5px); */
+    /* display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; */
+}
+#stdout
+{
+    grid-area: stdout;
+    height: 5vh;
+    text-align: center;
+    transform: translateY(-16px);
+    color: white;
+    background-color: #2F3129;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+#output
+{
+    grid-area: output;
+    height: 29vh;
+    transform: translateY(-16px);
+    
+}
 .select-container{
-    width: inherit;
     display: flex;
     justify-content: center;
     align-self: center;
 }
-.main__left
-{
-    display: flex;
-    flex-direction: column;
-    flex: 0.8;
-}
+
+
 .main__right
 {
+    position: absolute;
     display: flex;
     flex-direction: column;
     flex: 0.2;
+    height: 60vh;
+    position: relative;
+    margin-top: -5px;
+    margin-right: -.4vw;
+    border-radius: 5px;
     background-color: #242324;
-    border-left: 1px solid #3D3D42;
+    z-index: 9999;
+    
 }
+.open{
+    transform: translateY(-100%);
+}
+
 #video-grid
 {
     display: flex;
@@ -64,6 +170,7 @@ video{
     background-color: #1C1E20;
     color: white;
     padding: 5px;
+    height: 10vh;
     justify-content: space-between;
 }
 .main__controls__block{
@@ -107,18 +214,40 @@ video{
 .leave__meeting{
     color: #EB534B;
 }
+#meeting-id
+{
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+}
 .main__header{
+    padding-top: 10px;
+    padding-bottom: 10px;
     color: #f5f5f5;
     text-align: center;
+    cursor: pointer;
+    border-bottom: 1px solid #3D3D42;
 }
-
+.chat__box
+{
+    border-left: 1px solid #3D3D42;
+    width: 50vh;
+    z-index:999;
+}
 .main__chat_window{
-    flex-grow: 1;
+    height: 50vh;
     overflow-y: scroll;
 }
+
+.main__chat_window::-webkit-scrollbar{
+   display: none;
+}
 .main__message_container{
-    padding: 22px 12px;
+    padding: 7px 7px;
     display: flex;
+    /* border: 1px solid white; */
+    background-color: #1C1E20;
+    
 }
 
 .main__message_container input{
@@ -126,6 +255,7 @@ video{
     background-color: transparent;
     border: none;
     color: #f5f5f5;
+    padding: 5px 10px;
 }
 .messages{
     color: white;
@@ -133,10 +263,18 @@ video{
 }
 .join-message
 {
+    text-align: center;
+    transform: translateX(-15px);
+    color: green;
+}
+#no-of-users
+{
     color: green;
 }
 .left-message
 {
+    text-align: center;
+    transform: translateX(-15px);
     color: red;
 }
 
