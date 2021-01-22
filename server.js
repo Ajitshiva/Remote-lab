@@ -155,7 +155,7 @@ io.on('connection', socket => {
               }
               });
               console.log(username + " disconnected");
-              io.to(roomId).emit('leftMessage', username);
+              io.to(roomId).emit('leftMessage', username, noOfUsers);
               socket.to(roomId).broadcast.emit('user-disconnected', userId);
           })
         }
