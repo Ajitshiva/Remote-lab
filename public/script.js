@@ -1,10 +1,22 @@
 const name = prompt("Enter your name");
-
+const color = ['red', 'green', 'blue'];
+let colorIndex = 0;
+const colorMap = new Map();
 let socket = io('/');
 ace.require("ace/keybindings/sublime");
 ace.require("ace/ext/language_tools");
 
 const editor = ace.edit("editor");
+const session = editor.getSession();
+const doc = session.getDocument();
+const selection = session.selection;
+const AceRange = ace.require("ace/range").Range;
+const aceRangeUtil = AceCollabExt.AceRangeUtil;
+const customSelection = new AceCollabExt.AceMultiSelectionManager(session);
+const customCursor = new AceCollabExt.AceMultiCursorManager(session);
+const cursorColor = ["orange", "red", "green", "cyan", "blue"];
+let cursorColorMap = new Map();
+let cursorColorIndex = 0;
 editor.session.setMode("ace/mode/python");
 editor.setTheme("ace/theme/monokai");
 editor.setFontSize(16);
@@ -29,6 +41,10 @@ editor.setOptions({
     enableBasicAutocompletion: true,
     enableLiveAutocompletion: true
 });
+
+editor.on("change", () =>{
+  socket.emit("code-save", editor.getValue());
+})
 
 const sampleCode = {
     "c": "#include <stdio.h>\n\nint main() {\n\t// your code goes here\n\tprintf(\"Hello world\");\n\treturn 0;\n}\n\n",
@@ -75,13 +91,167 @@ run.addEventListener('click', ()=>{
         });
 })
 
+
+selection.on("changeCursor", () => {
+    const position = editor.getCursorPosition();
+    selection.moveCursorTo(position.row, position.column, true);
+    socket.emit("code-update", {
+      type: "CURSOR_UPDATED",
+      payload: {
+        user: getUser(),
+        cursor: position
+      }
+    });
+  });
+
+  selection.on("changeSelection", e => {
+    const rangesJson = aceRangeUtil.toJson(editor.selection.getAllRanges());
+    const ranges = aceRangeUtil.fromJson(rangesJson);
+    let newRanges = [...ranges];
+  
+    newRanges.forEach((range, index) => {
+      // For some reason, even clicks are registered as having a "selection"
+      // So we gotta filter out selections that did not select a character.
+      if (range.start.row === range.end.row && range.start.column === range.end.column) 
+      {
+        ranges.splice(index, 1);
+      }
+    });
+  
+    if (ranges.length > 0) {
+      socket.emit("code-update", {
+        type: "SELECTION_UPDATED",
+        payload: {
+          user: getUser(),
+          ranges
+        }
+      });
+    }
+  });
+
+editorUpdated({ state: true, callback: editorUpdatedCallback });
+
+socket.on("code-update", data => {
+    const { type, payload } = data;
+  
+    switch (type) {
+      case "UPDATE_EDITOR":
+        updateEditor({ ...payload });
+        break;
+      case "UPDATE_CURSOR":
+        updateCursor({ ...payload });
+        break;
+      case "UPDATE_SELECTION":
+        updateSelection({ ...payload });
+        break;
+      case "USER_DISCONNECTED":
+        removeOtherUser({ ...payload });
+        break;
+      default:
+        break;
+    }
+  });
+
+function getUser() {
+    return name;
+}
+
+function updateSelection({ user, ranges }) {
+    if (user === getUser()) {
+      return;
+    }
+  
+    let newRanges = ranges.map(range => {
+      return new AceRange(
+        range.start.row,
+        range.start.column,
+        range.end.row,
+        range.end.column
+      );
+    });
+    
+    
+    if (!Boolean(customSelection._selections["user"+user])) {
+      customSelection.addSelection("user"+user, user, cursorColorMap.get(user), []);
+    }
+    customSelection.setSelection("user"+user, newRanges);
+    // console.log(newRanges[0].start);
+    // customCursor.setCursor("user"+user, newRanges[0].start);
+  
+  }
+
+  function removeOtherUser({ user }) {
+    if (user === getUser()) {
+      return;
+    }
+    if (Boolean(customCursor._cursors["user"+user])) {
+      customCursor.removeCursor("user"+user);
+    }
+  
+    if (Boolean(customSelection._selections["user"+user])) {
+      customSelection.removeSelection("user"+user);
+    }
+  }
+  
+  function editorUpdatedCallback(lines) {
+    socket.emit("code-update", {
+      type: "EDITOR_UPDATED",
+      payload: {
+        lines,
+        cursor: editor.getCursorPosition(),
+        user: getUser()
+      }
+    });
+  }
+  
+  function editorUpdated({ state, callback }) {
+    session.getDocument()[state ? "on" : "off"]("change", callback);
+  }
+  
+  function updateEditor({ user, lines }) {
+    if (user === getUser()) {
+      return;
+    }
+    let code = editor.getValue();
+    selection.clearSelection();
+
+    if(code == "" && lines.action == "remove") return;
+    
+    editorUpdated({ state: false, callback: editorUpdatedCallback });
+    doc.applyDeltas([lines]);
+    editorUpdated({ state: true, callback: editorUpdatedCallback });
+  }
+  let localCursors;
+  function updateCursor({ user, cursor }) {
+    if (user === getUser()) {
+      return;
+    }
+    localCursors = customCursor.valueOf();
+    if(!Boolean(localCursors._cursors["user"+user]))
+    {
+      cursorColorMap.set(user, cursorColor[colorIndex]);
+      customCursor.addCursor("user"+user, user, cursorColorMap.get(user), 0);
+      cursorColorIndex = (cursorColorIndex + 1)%cursorColor.length;
+  
+    }
+    if (!Boolean(customSelection._selections["user"+user])) {
+        customSelection.addSelection("user"+user, user,cursorColorMap.get(user), []);
+    }
+    customCursor.setCursor("user"+user, cursor);
+    if (Boolean(customSelection._selections["user"+user])) {
+        customSelection.removeSelection("user"+user);
+    }
+  
+    selection.clearSelection();
+
+  }
+
 const editorDiv = document.getElementById('editor');
 const inputDiv = document.getElementById('input');
 const outputDiv = document.getElementById('output');
 
 editorDiv.addEventListener('keyup', event => {
-    const code = editor.getValue();
-    socket.emit('code-update', code);
+    selection.clearSelection();
 });
 inputDiv.addEventListener('keyup', event => {
     const code = input.getValue();
@@ -97,7 +267,6 @@ chatBody.classList.toggle("open");
 
 const meetingId = document.getElementById('meeting-id');
 meetingId.textContent = "Room Id: " + ROOM_ID;
-console.log("<%=roomId%>");
 
 
 meetingId.addEventListener('click', ()=>{
@@ -116,15 +285,25 @@ languageSelect.addEventListener('change', event => {
     if(language === 'C' || language === 'C++')  mode = "c_cpp";
     editor.setValue(sampleCode[language.toLowerCase()]);
     editor.clearSelection();
-    socket.emit('code-update', sampleCode[language.toLowerCase()]);
+    socket.emit('code-change', sampleCode[language.toLowerCase()], getUser());
     
     editor.session.setMode('ace/mode/' + mode.toLowerCase());
     socket.emit('language-change', language);
 
 });
-socket.on('code-update', code => {
-    editor.setValue(code)
-    editor.clearSelection();
+
+socket.on('more-users',() => {
+    window.location.href = "/more-users";
+})
+
+socket.on('code-change', (code, user) => {
+    editor.setValue("");
+    editor.insert(code);
+    selection.clearSelection();
+    // customSelection.clearSelection();
+    // if (Boolean(customSelection._selections["user"+user])) {
+    //     customSelection.removeSelection("user"+user);
+    //   }
 });
 socket.on('input-update', code => {
     input.setValue(code)
@@ -179,6 +358,11 @@ socket.on('user-disconnected', userId => {
 peer.on('open', id => {
     
     socket.emit('join-room', ROOM_ID, id, name);
+    socket.emit("code-update", {
+  
+        type: "INIT_USER",
+        payload: { cursor: editor.selection.getCursor(), user: getUser() }
+      });
 })
 
 
@@ -223,8 +407,19 @@ socket.on('joinMessage', (username, noOfUsers) =>{
     $('ul').append(`<li class = "join-message"><b>${username}</b> joined the room</li>`);
     scrollToBottom();
 })
+
 socket.on('createMessage', (username, message) =>{
-    $('ul').append(`<li class = "message"><b>${username}</b><br/>${message}</li>`);
+    var msgColor = "";
+    if(colorMap.has(username)) msgColor = colorMap.get(username);
+    else
+    {
+        msgColor = color[(colorIndex++)%color.length];
+        colorMap.set(username,msgColor);
+
+    }
+    if(username !== name) $('ul').append(`<li class = "other-messages ${msgColor}"><b>${username}</b>${message}</li><div></div>`);
+    else $('ul').append(`<li class = "messages ${msgColor} "><b>${username}</b>${message}</li><div><div/>`);
+
     scrollToBottom();
 })
 socket.on('leftMessage', (username, noOfUsers) =>{

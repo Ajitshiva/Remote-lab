@@ -260,6 +260,32 @@ video{
 .messages{
     color: white;
     list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-self: flex-start;
+
+}
+.other-messages{
+    color: white;
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    align-self: flex-end;
+    margin-right: 32px;
+
+
+}
+
+.red
+{
+    color: red;
+}
+.green
+{
+    color: green;
+}
+.blue{
+    color: blue;
 }
 .join-message
 {
