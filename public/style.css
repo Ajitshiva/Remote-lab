@@ -8,17 +8,18 @@ body{
     font-family: 'Lato', sans-serif;
 }
 .lato{
-    font-size: .7rem;
-    font-weight: 700;
+    /* font-size: 0.9rem; */
+    /* font-weight: 700; */
     font-family: 'Lato', sans-serif;
 }
 .lato-primary
 {
-    font-weight: 700;
+    /* font-weight: 700; */
     font-family: 'Lato', sans-serif;
 }
 a{
     text-decoration: none;
+
 }
 .main{
     height: 100vh;
@@ -68,6 +69,20 @@ a{
 #run
 {
     padding: 1px 10px;
+    border-radius: 10px;
+    outline: none;
+    border: none;
+    width: 80px;
+    background-color: #4CBE81;
+    
+    color: white;
+    transition: background-color 0.1s ease-in;
+    border: 1px solid white;
+    
+}
+#run:hover
+{
+    background-color: #EB5757;
 }
 .editor-settings
 {

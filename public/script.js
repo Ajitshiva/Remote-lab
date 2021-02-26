@@ -61,6 +61,8 @@ run.addEventListener('click', ()=>{
     let editor = ace.edit("editor");
     let output = ace.edit("output");
     let input = ace.edit("input");
+    output.setValue("Compiling...");
+    output.clearSelection();
     let languageSelect = document.getElementById('language-select');
     var language = languageSelect.value.toLowerCase();
     var version = "3";
