@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Remote Lab</title>
+    <link rel = "stylesheet" href = "home.css">
+    <link rel="shortcut icon" type="image/x-icon" href="/favicon.png">
+</head>
+<body>
+    <!-- <div id = "particles-js">
+        <h1> This is some text</h1>
+    </div> -->
+    <div id = "particles-js" >
+        
+    </div>
+    <div class = "title">
+        <img src="/icon.svg" alt="Logo">
+        <h1>Remote Lab</h1>
+    </div>
+    <p class="sub-title">A real-time collaborative code editor and previewer</p>
+    <div class = "option">
+        <a href="/call" ><button>Create New Meeting</button></a>
+        <button onclick = "joinMeeting()">Join Meeting</button>
+    </div>
+    <div class="footer">
+        <span>Handcrafted with <svg class="heart" viewBox="0 0 24 24" preserveAspectRatio="xMidYMid meet" style="color: rgb(223, 95, 95); height: 16px; width: 16px;"><g id="favorite"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"></path></g></svg> by Ajit Shiva and Aravinthan </span>
+ 
+
+ 
+   
+    
+    <script type  = "text/javascript" src = "https://cdn.jsdelivr.net/npm/particles.js@2.0.0/particles.min.js"></script>
+    <!-- <script type = "text/javascript" src = "app.js"></script> -->
+    <script>
+        particlesJS.load('particles-js', 'particles.json', function(){
+            console.log('particles.json loaded...');
+        });
+
+        const joinMeeting = () => {
+        var meetingId = prompt("Enter meeting id : (ex: uul-omlh-ihxp)");
+        console.log(meetingId);
+        if(meetingId == null) return;
+        url = `/join/${meetingId}`;
+        console.log(url);
+        window.location = url;
+        };
+
+    </script>
+</body>
+</html>

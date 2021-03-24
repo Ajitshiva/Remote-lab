@@ -112,8 +112,6 @@ selection.on("changeCursor", () => {
     let newRanges = [...ranges];
   
     newRanges.forEach((range, index) => {
-      // For some reason, even clicks are registered as having a "selection"
-      // So we gotta filter out selections that did not select a character.
       if (range.start.row === range.end.row && range.start.column === range.end.column) 
       {
         ranges.splice(index, 1);
@@ -177,8 +175,6 @@ function updateSelection({ user, ranges }) {
       customSelection.addSelection("user"+user, user, cursorColorMap.get(user), []);
     }
     customSelection.setSelection("user"+user, newRanges);
-    // console.log(newRanges[0].start);
-    // customCursor.setCursor("user"+user, newRanges[0].start);
   
   }
 
@@ -268,15 +264,16 @@ chatBody.classList.toggle("open");
 });
 
 const meetingId = document.getElementById('meeting-id');
-meetingId.textContent = "Room Id: " + ROOM_ID;
+meetingId.textContent = ROOM_ID;
 
 
 meetingId.addEventListener('click', ()=>{
     const meetingId = document.getElementById('meeting-id');
     var aux = document.createElement("input");
-    aux.setAttribute("value", document.getElementById(meetingId).innerHTML);
+    aux.setAttribute("value", meetingId.innerText);
     document.body.appendChild(aux);
     aux.select();
+    alert("Room ID copied")
     document.execCommand("copy");
     document.body.removeChild(aux);
 })
@@ -420,7 +417,7 @@ socket.on('createMessage', (username, message) =>{
 
     }
     if(username !== name) $('ul').append(`<li class = "other-messages ${msgColor}"><b>${username}</b>${message}</li><div></div>`);
-    else $('ul').append(`<li class = "messages ${msgColor} "><b>${username}</b>${message}</li><div><div/>`);
+    else $('ul').append(`<li class = "messages ${msgColor} "><b class = "name">${username}</b>${message}</li><div><div/>`);
 
     scrollToBottom();
 })
@@ -451,12 +448,12 @@ const muteUnmute = ()=>{
 
 const setMuteButton = () =>{
 
-    const btn = `<i class = "fas fa-microphone"></i><span>Mute</span>`;
+    const btn = `<i class = "fas fa-microphone"></i>`;
     var mute_btn = document.getElementById('mute__audio');
     mute_btn.innerHTML = btn;
 }
 const setUnmuteButton = () =>{
-    const btn = `<i class = "unmute fas fa-microphone-slash"></i><span>Unmute</span>`;
+    const btn = `<i class = "unmute fas fa-microphone-slash"></i>`;
     var mute_btn = document.getElementById('mute__audio');
     mute_btn.innerHTML = btn;
 }
@@ -478,13 +475,14 @@ const playStop = () =>{
 
 const setPlayVideo = ()=>{
     const html =   `<i class = "stop fas fa-video-slash"></i>
-                    <span> Play Video </span>
+                   
                     `;
     document.getElementById('mute__video').innerHTML = html;
 }
 const setStopVideo = ()=>{
     const html =   `<i class = "fas fa-video"></i>
-                    <span> Stop Video </span>
+                  
                     `;
     document.getElementById('mute__video').innerHTML = html;
 }
+
