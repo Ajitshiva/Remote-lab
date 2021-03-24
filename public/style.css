@@ -10,7 +10,7 @@ body{
    
 }
 .lato{
-    /* font-size: 0.9rem; */
+    font-size: 0.9rem;
     /* font-weight: 700; */
     font-family: 'Lato', sans-serif;
 }
@@ -189,8 +189,8 @@ a{
 }
 
 video{
-    height: 100px;
-    width: 100px;
+    height: 93px;
+    width: 93px;
     object-fit: cover;
     border-radius: 50%;
     border: 3px solid white
